@@ -1,8 +1,8 @@
 # configurable-api
 
-Back in early 2019, while having brainstorming session with my team, I had an idea about making the api as configurable and only implement the changes for different requirement in config file.
+Write the config to call the api via component or javascript function.
 
-By using this module, you will able to write the config to call the api via component or javascript function.
+Back in early 2019, while having brainstorming session with my team, I had an idea about making the api as configurable and only implement the changes for different requirement in config file.
 
 ## How to use
 
