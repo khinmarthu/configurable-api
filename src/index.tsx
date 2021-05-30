@@ -1,9 +1,7 @@
-import * as React from 'react';
-
-export type ConfigurableApiProps = {
-    className?: string
-};
-
-const ConfigurableApi: React.FC<ConfigurableApiProps> = ({ className }) => <div className={className}>Init Configurable Api</div>;
+import ConfigurableApi from './ConfigurableApi';
+import { initConfigurableApi } from './helpers/core';
 
 export default ConfigurableApi;
+export {
+    initConfigurableApi,
+};
