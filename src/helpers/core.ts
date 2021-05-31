@@ -71,6 +71,7 @@ type isErrorType = {
 type handleConditionType = handleResponseType & {
     actionVal?: string,
     status: number,
+    jsonResponse?: object,
 }
 
 type handleActionType = handleConditionType & {
@@ -451,7 +452,8 @@ const handleResponse = async (data: handleResponseType):Promise<apiResponseType>
                     ...data,
                     actionVal,
                     status,
-                    allInput: newAllInput
+                    allInput: newAllInput,
+                    jsonResponse
                 });
                 return conditionReturn;
             }
@@ -534,17 +536,27 @@ const whenContinueIsNotTrueInVal = (condition: conditionType, val: string|number
  * @return {{ api: object, actions: [{redirect: string}, {message: string}], continueNextApi: boolean}}
  */
 const handleCondition = (data: handleConditionType) => {
-    const { status, allResults, apiConfig, actionVal = '' } = data;
-    const { actions: actionsResult } = allResults;
+    const { status, allResults, apiConfig, apiKey, jsonResponse, actionVal = '' } = data;
+    const { api, actions: actionsResult } = allResults;
     const { shouldHideError, shouldContinueNextApiOnError, condition } = apiConfig;
     let hideError = shouldHideError || HIDE_ERROR;
     let continueNextApi =
         shouldContinueNextApiOnError || CONTINUE_NEXT_API_ON_ERROR;
-    if (hideError)
+    if (hideError) {
+        const res = (jsonResponse)? {
+            api: {
+                ...api,
+                [apiKey]: {
+                    ...jsonResponse
+                }
+            }
+        }: {};
         return {
             ...allResults,
-            continueNextApi
+            continueNextApi,
+            ...res
         };
+    }
 
     const { [actionVal]: aVal, [status]: sVal, ['default']:dVal } = condition;
     const currentAction = (aVal || sVal || dVal) as conditionKeysType;

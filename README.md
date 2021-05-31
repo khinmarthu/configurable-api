@@ -111,9 +111,9 @@ api: {
             continue?: boolean | redirect?: string | message?: string
         },
     },
-    beforeFetch?: object,
-    shouldHideError?: boolean,
-    shouldContinueNextApiOnError?: boolean,
+    beforeFetch?: object, // manipulate the your desired data before fetch
+    shouldHideError?: boolean, // if this is true, will ignore condition (default: false)
+    shouldContinueNextApiOnError?: boolean, // if this is true, will continue next when there is error (default: false)
 }
 
 whenSuccess?: (apiResponse: object, props: ConfigurableApiProps) => ReactElement|void
