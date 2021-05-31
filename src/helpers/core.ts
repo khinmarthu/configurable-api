@@ -1,46 +1,92 @@
-import querystring from 'querystring';
+import  { ReactElement } from 'react';
 import omit from 'lodash/omit';
+import querystring from 'querystring';
 import get from 'lodash/get';
 
-/**
- * serialize get request object
- * @param {object} obj
- * @return {string}
- */
-const serializeObject = (obj: object): string => (isObject(obj) && Object.keys(obj)
-    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
-    .join('&')) || '';
-
-/**
- * when it is not object
- * @param {*} value
- * @return {boolean}
- */
-const isNotObject = (value: any): boolean => isObject(value) === false;
-
-/**
- * when it is object
- * @param {*} value
- * @return {boolean}
- */
-const isObject = (value: any): boolean => value && value.constructor.name === 'Object';
-
-/**
- * convert to string
- * @param {*} value
- * @return {string}
- */
-const convertToString = (value: any): string => {
-    return typeof value !== 'string' ? JSON.stringify(value) : value;
+type argCallApiType = {
+    apiConfig: apiConfigType,
+    apiKey: string,
+    allInput: object,
+    allResults: apiResponseType,
+    helpers: object,
 };
 
-/**
- * parse query string
- * @return {object}
- */
-const parseQueryString = (): object => {
-    const urlQueryString = window.location.search.substring(1);
-    return querystring.parse(urlQueryString) || {};
+type conditionKeysType = actionsType & {
+    continue?: boolean,
+}
+
+type conditionType = {
+    key?: string,
+    [key: number]: conditionKeysType,
+    [key: string]: conditionKeysType|string|undefined,
+    default: conditionKeysType,
+};
+
+type apiConfigType = {
+    url: string,
+    method: METHODS_TYPE,
+    headers?: object,
+    request?: object,
+    condition: conditionType,
+    beforeFetch?: object,
+    shouldHideError?: boolean,
+    shouldContinueNextApiOnError?: boolean,
+};
+
+type beforeFetchOutputType = {
+    [key: string]: any,
+    beforeFetch?: object,
+};
+
+type executedValuesType = {
+    headers: string,
+    request: object,
+    url: string
+}
+
+type fetchInfoOutputType = {
+    url: string,
+    options: object
+};
+
+type handleResponseType = argCallApiType & {
+    response: responseType
+}
+
+type responseType = {
+    ok: boolean,
+    status: number,
+    [key: string]: any,
+}
+
+type actionKeyType = string|undefined;
+
+type isErrorType = {
+    condition: conditionType,
+    actionKey: actionKeyType,
+    actionVal: string,
+    status: number
+}
+
+type handleConditionType = handleResponseType & {
+    actionVal?: string,
+    status: number,
+}
+
+type handleActionType = handleConditionType & {
+    currentAction: conditionKeysType
+};
+
+type ConfigurableApiProps = {
+    className?: string,
+    api: apiConfigType,
+    whenSuccess?: (apiResponse: object, props: ConfigurableApiProps) => ReactElement|void,
+    whenLoading?: (props: ConfigurableApiProps) => ReactElement,
+    whenMessage?: (message: string, props: ConfigurableApiProps) => ReactElement|void,
+    whenRedirect?: (redirect: string, props: ConfigurableApiProps) => void,
+    dataToMap?: object,
+    helpers?: object,
+    errorMessage?: string,
 };
 
 const CUSTOM_CONFIG_KEYS = [
@@ -82,6 +128,47 @@ type argApiResponseType = {
     api?: object,
     all?: object,
     helpers?: object,
+};
+
+/**
+ * serialize get request object
+ * @param {object} obj
+ * @return {string}
+ */
+const serializeObject = (obj: object): string => (isObject(obj) && Object.keys(obj)
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
+    .join('&')) || '';
+
+/**
+ * when it is not object
+ * @param {*} value
+ * @return {boolean}
+ */
+const isNotObject = (value: any): boolean => isObject(value) === false;
+
+/**
+ * when it is object
+ * @param {*} value
+ * @return {boolean}
+ */
+const isObject = (value: any): boolean => value && value.constructor.name === 'Object';
+
+/**
+ * convert to string
+ * @param {*} value
+ * @return {string}
+ */
+const convertToString = (value: any): string => {
+    return typeof value !== 'string' ? JSON.stringify(value) : value;
+};
+
+/**
+ * parse query string
+ * @return {object}
+ */
+const parseQueryString = (): object => {
+    const urlQueryString = window.location.search.substring(1);
+    return querystring.parse(urlQueryString) || {};
 };
 
 /**
@@ -135,36 +222,6 @@ const combineQueryStringInValue = (value: object): object => {
     };
 };
 
-type argCallApiType = {
-    apiConfig: apiConfigType,
-    apiKey: string,
-    allInput: object,
-    allResults: apiResponseType,
-    helpers: object,
-};
-
-type conditionKeysType = actionsType & {
-    continue?: boolean,
-}
-
-type conditionType = {
-    key?: string,
-    [key: number]: conditionKeysType,
-    [key: string]: conditionKeysType|string|undefined,
-    default: conditionKeysType,
-};
-
-type apiConfigType = {
-    url: string,
-    method: METHODS_TYPE,
-    headers?: object,
-    request?: object,
-    condition: conditionType,
-    beforeFetch?: object,
-    shouldHideError?: boolean,
-    shouldContinueNextApiOnError?: boolean,
-};
-
 /**
  *
  * @param {argCallApiType} data
@@ -201,11 +258,6 @@ const fetchApi = async (data: argCallApiType): Promise<apiResponseType|apiConfig
 };
 
 const isNotSupportedMethod = (method: METHODS_TYPE): boolean => METHODS.includes(method) === false;
-
-type beforeFetchOutputType = {
-    [key: string]: any,
-    beforeFetch?: object,
-};
 
 /**
  * @param {object} beforeFetch
@@ -319,17 +371,6 @@ const executeValues = (values: object, allInput: object, helpers: object): objec
     );
 };
 
-type executedValuesType = {
-    headers: string,
-    request: object,
-    url: string
-}
-
-type fetchInfoOutputType = {
-    url: string,
-    options: object
-};
-
 /**
  * fetch info to use in fetch()
  * @param {executedValuesType} executedValues
@@ -371,16 +412,6 @@ const fetchInfo = (executedValues: executedValuesType, apiConfig: apiConfigType)
         }
     }
 };
-
-type handleResponseType = argCallApiType & {
-    response: responseType
-}
-
-type responseType = {
-    ok: boolean,
-    status: number,
-    [key: string]: any,
-}
 
 /**
  * 
@@ -443,8 +474,6 @@ const handleResponse = async (data: handleResponseType):Promise<apiResponseType>
     }
 };
 
-type actionKeyType = string|undefined;
-
 /**
  * get key from config condition
  * @param {object} condition
@@ -454,13 +483,6 @@ const getActionKey = (condition: conditionType): actionKeyType => {
     const { key } = condition;
     return key;
 };
-
-type isErrorType = {
-    condition: conditionType,
-    actionKey: actionKeyType,
-    actionVal: string,
-    status: number
-}
 
 /**
  * check got error
@@ -506,11 +528,6 @@ const whenContinueIsNotTrueInVal = (condition: conditionType, val: string|number
     );
 };
 
-type handleConditionType = handleResponseType & {
-    actionVal?: string,
-    status: number,
-}
-
 /**
  * handle condition
  * @param {handleConditionType} data
@@ -539,10 +556,6 @@ const handleCondition = (data: handleConditionType) => {
     };
 };
 
-type handleActionType = handleConditionType & {
-    currentAction: conditionKeysType
-};
-
 /**
  *
  * @param {handleActionType}
@@ -564,4 +577,5 @@ const handleAction = (data: handleActionType): Array<actionsType> => {
     return actionResponse;
 };
 
-export { initConfigurableApi };
+export default initConfigurableApi;
+export { executeValues, apiConfigType, ConfigurableApiProps };

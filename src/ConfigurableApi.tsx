@@ -1,6 +1,6 @@
 import { isValidElement, FC, ReactElement } from 'react';
 import { useRender } from './helpers/hooks';
-import { ConfigurableApiProps } from './helpers/types';
+import { ConfigurableApiProps } from './helpers/core';
 
 const shouldRender = (element: ReactElement): boolean => {
     return (

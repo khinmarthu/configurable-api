@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, ReactElement } from 'react';
-import { initConfigurableApi } from './core';
-import { ConfigurableApiProps } from './types';
+import initConfigurableApi, { ConfigurableApiProps } from './core';
 
 const useIsMounted = () => {
     let isMounted = useRef(false);
