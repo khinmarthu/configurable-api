@@ -2,7 +2,11 @@
 
 Write the config to call the api via component or javascript function.
 
-The whole idea started on back in early 2019, I wanted to have API calls and handle API responses in the config with less maintaining the code. So, I had come up with the idea to make it into component and javascript function.
+The whole idea started back in early 2019, I wanted to have API calls and handle API responses in the config with less maintaining the code. So, I had come up with the idea to make it into component and javascript function.
+
+## Demo
+
+coming soon ...
 
 ## How to use
 
@@ -111,7 +115,7 @@ api: {
             continue?: boolean | redirect?: string | message?: string
         },
     },
-    beforeFetch?: object, // manipulate the your desired data before fetch
+    beforeFetch?: object, // manipulate your desired data before fetch
     shouldHideError?: boolean, // if this is true, will ignore condition (default: false)
     shouldContinueNextApiOnError?: boolean, // if this is true, will continue next when there is error (default: false)
 }
